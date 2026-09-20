@@ -1,0 +1,18 @@
+How to install and manage this app:
+ run in powershell:
+
+1.  pip install yfinance pandas.   Create a free Twelve Data https://twelvedata.comaccount  get  a key.
+ 
+2.  Download  the Top.py file to your route directory
+  
+3. Name the file : top.py
+  Open file in Notepad ++
+  
+ 4. You will see a list of  stocks.  Change the symbols to any you want.  You must follow the same format. 
+  
+5.  Save the file and run this in PS from route directory ie:cd "C:\Users\yourname"
+  run--     python.py
+ 
+6. A  html file wil be created in the same directory that shows your  stocks.  The list updates by refreshing the file.
+  
+Create a netlify account.  Upload the folder to Netlify.
