@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>S&P 500 Last 20 Additions — Yahoo Live</title>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1119; --surface: #1a1d2e; --surface2: #232740; --border: #3a4060;
+    --text: #f0f2fa; --muted: #c8ccdb; --accent: #00d4aa; --gold: #f5c842; --yellow: #ffd966;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text);
+    margin: 0; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 30px 20px;
+  }
+  .header { width: 100%; max-width: 1500px; margin-bottom: 22px; text-align: center; }
+  .header h1 { font-size: 2rem; font-weight: 700; margin: 0 0 6px; color: var(--gold); }
+  .header .sub { color: #fff; font-size: 0.95rem; margin: 0; }
+  .controls { width: 100%; max-width: 1500px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+  .controls a { color: var(--yellow); background: var(--surface); padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); text-decoration: none; font-weight: 700; }
+  .controls a:hover { border-color: var(--accent); }
+  .controls .center-warning { font-size: 0.8rem; color: var(--muted); text-align: center; flex: 1 1 auto; }
+  #stocksTable_wrapper { width: 100%; max-width: 1500px; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
+  #stocksTable thead th { background: var(--surface2); color: var(--text); font-weight: 600; font-size: 0.72rem; text-transform: uppercase; padding: 12px 7px; border-bottom: 2px solid var(--border); text-align: center; white-space: nowrap; }
+  #stocksTable tbody td { padding: 9px 7px; text-align: center; font-size: 0.82rem; border-bottom: 1px solid var(--border); }
+  #stocksTable tbody tr:hover { background: var(--surface2); }
+  .pos { color: #ffd966; font-weight: 700; }
+.neg { color: #ffd966; font-weight: 700; }
+  .na { color: var(--muted); font-style: italic; }
+  .dataTables_length { display: none !important; }
+  .dataTables_filter, .dataTables_info, .dataTables_paginate { color: var(--muted); font-size: 0.8rem; padding: 10px 14px; background: var(--surface); border-top: 1px solid var(--border); }
+  .dataTables_filter input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 4px; width: 180px; }
+  .footer-note { margin-top: 24px; color: var(--muted); font-size: 0.8rem; text-align: center; max-width: 900px; }
+  .footer-note a { color: var(--yellow); }
+  .live-badge { font-size: 0.7rem; background: #00d4aa20; padding: 2px 10px; border-radius: 20px; color: var(--accent); border: 1px solid var(--accent); }
+</style>
+<script>
+const STOCKS_DATA = [
+  {
+    "symbol": "BE",
+    "company": "Bloom Energy",
+    "industry": "Electrical Equipment & Parts",
+    "announced": "2026-09-04",
+    "effective": "2026-09-21",
+    "spinoff": false,
+    "price_1wk_before": 280.6400146484375,
+    "price_pre_ann": 252.8699951171875,
+    "pct_eod_after_ann": 10.98193540850132,
+    "pct_1wk_after_ann": null,
+    "pct_1mo_after_ann": null,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 74.47712854489819,
+    "mcap_d1_delta_bn": 8.179030150907224,
+    "mcap_1wk_delta_bn": null,
+    "mcap_1mo_delta_bn": null,
+    "price": 280.59,
+    "market_cap_bn": 82.64142848
+  },
+  {
+    "symbol": "P",
+    "company": "Everpure",
+    "industry": "Computer Hardware",
+    "announced": "2026-09-04",
+    "effective": "2026-09-21",
+    "spinoff": false,
+    "price_1wk_before": 101.63999938964844,
+    "price_pre_ann": 99.51000213623047,
+    "pct_eod_after_ann": 2.1404855870688966,
+    "pct_1wk_after_ann": null,
+    "pct_1mo_after_ann": null,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 33.15944445886021,
+    "mcap_d1_delta_bn": 0.7097731293940228,
+    "mcap_1wk_delta_bn": null,
+    "mcap_1mo_delta_bn": null,
+    "price": 101.64,
+    "market_cap_bn": 33.86921984
+  },
+  {
+    "symbol": "ILMN",
+    "company": "Illumina",
+    "industry": "Diagnostics & Research",
+    "announced": "2026-09-04",
+    "effective": "2026-09-21",
+    "spinoff": false,
+    "price_1wk_before": 215.0625,
+    "price_pre_ann": 218.22000122070312,
+    "pct_eod_after_ann": -1.446934837796876,
+    "pct_1wk_after_ann": null,
+    "pct_1mo_after_ann": null,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 32.951220184326175,
+    "mcap_d1_delta_bn": -0.47678268432617443,
+    "mcap_1wk_delta_bn": null,
+    "mcap_1mo_delta_bn": null,
+    "price": 215.0625,
+    "market_cap_bn": 32.474437632
+  },
+  {
+    "symbol": "RDDT",
+    "company": "Reddit",
+    "industry": "Internet Content & Information",
+    "announced": "2026-08-13",
+    "effective": "2026-08-18",
+    "spinoff": false,
+    "price_1wk_before": 156.19000244140625,
+    "price_pre_ann": 158.1199951171875,
+    "pct_eod_after_ann": 12.629649530347354,
+    "pct_1wk_after_ann": -4.939285226264722,
+    "pct_1mo_after_ann": null,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 23.10183727060547,
+    "mcap_d1_delta_bn": 2.9176810823486328,
+    "mcap_1wk_delta_bn": -1.1410656353027342,
+    "mcap_1mo_delta_bn": null,
+    "price": 154.425,
+    "market_cap_bn": 29.710831616
+  },
+  {
+    "symbol": "FERG",
+    "company": "Ferguson Enterprises",
+    "industry": "Industrial Distribution",
+    "announced": "2026-07-31",
+    "effective": "2026-08-05",
+    "spinoff": false,
+    "price_1wk_before": 225.3592071533203,
+    "price_pre_ann": 233.45899963378906,
+    "pct_eod_after_ann": 6.7212881281001335,
+    "pct_1wk_after_ann": 9.542097765034697,
+    "pct_1mo_after_ann": -3.8332234529364073,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 45.1632777872585,
+    "mcap_d1_delta_bn": 3.0355540281758877,
+    "mcap_1wk_delta_bn": 4.309524120354396,
+    "mcap_1mo_delta_bn": -1.7312093562560165,
+    "price": 229.095,
+    "market_cap_bn": 44.319051776
+  },
+  {
+    "symbol": "HONA",
+    "company": "Honeywell Aerospace",
+    "industry": "Aerospace & Defense",
+    "announced": "2026-06-23",
+    "effective": "2026-06-29",
+    "spinoff": true,
+    "price_1wk_before": 261.0299987792969,
+    "price_pre_ann": 245.0,
+    "pct_eod_after_ann": 0.0,
+    "pct_1wk_after_ann": -9.763264558753193,
+    "pct_1mo_after_ann": -20.053063217474488,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 77.653417625,
+    "mcap_d1_delta_bn": 0.0,
+    "mcap_1wk_delta_bn": -7.581508601642227,
+    "mcap_1mo_delta_bn": -15.571888926870727,
+    "price": 157.43,
+    "market_cap_bn": 49.897865216
+  },
+  {
+    "symbol": "FLEX",
+    "company": "Flex",
+    "industry": "Electronic Components",
+    "announced": "2026-06-05",
+    "effective": "2026-06-22",
+    "spinoff": false,
+    "price_1wk_before": 149.22000122070312,
+    "price_pre_ann": 151.9199981689453,
+    "pct_eod_after_ann": -0.7174804838257498,
+    "pct_1wk_after_ann": -1.4547073997594917,
+    "pct_1mo_after_ann": -8.734863370458834,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 56.11969974136294,
+    "mcap_d1_delta_bn": -0.4026478932258897,
+    "mcap_1wk_delta_bn": -0.8163774248604128,
+    "mcap_1mo_delta_bn": -4.901979096319792,
+    "price": 113.51,
+    "market_cap_bn": 41.930932224
+  },
+  {
+    "symbol": "MRVL",
+    "company": "Marvell Technology",
+    "industry": "Semiconductors",
+    "announced": "2026-06-05",
+    "effective": "2026-06-22",
+    "spinoff": false,
+    "price_1wk_before": 308.8038330078125,
+    "price_pre_ann": 263.405029296875,
+    "pct_eod_after_ann": 9.632978097278077,
+    "pct_1wk_after_ann": 6.160088404283215,
+    "pct_1mo_after_ann": -5.389609577099785,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 230.98688018847437,
+    "mcap_d1_delta_bn": 22.250915576141693,
+    "mcap_1wk_delta_bn": 14.228996021905772,
+    "mcap_1mo_delta_bn": -12.449291016482022,
+    "price": 230.92,
+    "market_cap_bn": 207.528869888
+  },
+  {
+    "symbol": "FDXF",
+    "company": "FedEx Freight",
+    "industry": "Integrated Freight & Logistics",
+    "announced": "2026-06-01",
+    "effective": "2026-06-01",
+    "spinoff": true,
+    "price_1wk_before": null,
+    "price_pre_ann": 149.52999877929688,
+    "pct_eod_after_ann": null,
+    "pct_1wk_after_ann": 19.554608260461293,
+    "pct_1mo_after_ann": 4.173079344683317,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 22.35744624497275,
+    "mcap_d1_delta_bn": null,
+    "mcap_1wk_delta_bn": 4.3719110302476345,
+    "mcap_1mo_delta_bn": 0.9329939712476332,
+    "price": 129.67,
+    "market_cap_bn": 19.388014592
+  },
+  {
+    "symbol": "VEEV",
+    "company": "Veeva Systems",
+    "industry": "Health Information Services",
+    "announced": "2026-04-30",
+    "effective": "2026-05-07",
+    "spinoff": false,
+    "price_1wk_before": 155.97000122070312,
+    "price_pre_ann": 155.97000122070312,
+    "pct_eod_after_ann": 10.021160967162835,
+    "pct_1wk_after_ann": 7.873308125400502,
+    "pct_1mo_after_ann": 20.959160213859796,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 25.25292353214264,
+    "mcap_d1_delta_bn": 2.530636116070557,
+    "mcap_1wk_delta_bn": 1.9882404803573621,
+    "mcap_1mo_delta_bn": 5.2928007017852785,
+    "price": 266.29,
+    "market_cap_bn": 43.114708992
+  },
+  {
+    "symbol": "CASY",
+    "company": "Casey's",
+    "industry": "Specialty Retail",
+    "announced": "2026-04-06",
+    "effective": "2026-04-09",
+    "spinoff": false,
+    "price_1wk_before": 742.3479614257812,
+    "price_pre_ann": 746.691650390625,
+    "pct_eod_after_ann": -0.795697427029185,
+    "pct_1wk_after_ann": -1.7077446771222915,
+    "pct_1mo_after_ann": 14.839506887314457,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 27.631260307223144,
+    "mcap_d1_delta_bn": -0.21986122732031177,
+    "mcap_1wk_delta_bn": -0.47187137711840776,
+    "mcap_1mo_delta_bn": 4.100342776342163,
+    "price": 745.06,
+    "market_cap_bn": 27.570880512
+  },
+  {
+    "symbol": "VRT",
+    "company": "Vertiv",
+    "industry": "Electrical Equipment & Parts",
+    "announced": "2026-03-06",
+    "effective": "2026-03-23",
+    "spinoff": false,
+    "price_1wk_before": 264.6219177246094,
+    "price_pre_ann": 241.6721954345703,
+    "pct_eod_after_ann": 9.334926272375533,
+    "pct_1wk_after_ann": 7.0725394865802205,
+    "pct_1mo_after_ann": 7.0359697413138855,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 93.04093698525416,
+    "mcap_d1_delta_bn": 8.685302870700852,
+    "mcap_1wk_delta_bn": 6.580357006966324,
+    "mcap_1mo_delta_bn": 6.546332173317396,
+    "price": 294.93,
+    "market_cap_bn": 113.544552448
+  },
+  {
+    "symbol": "LITE",
+    "company": "Lumentum",
+    "industry": "Communication Equipment",
+    "announced": "2026-03-06",
+    "effective": "2026-03-23",
+    "spinoff": false,
+    "price_1wk_before": 624.8400268554688,
+    "price_pre_ann": 558.4400024414062,
+    "pct_eod_after_ann": 14.72852941057532,
+    "pct_1wk_after_ann": 11.471240827758432,
+    "pct_1mo_after_ann": 38.292390573847854,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 50.09206821899414,
+    "mcap_d1_delta_bn": 7.377824999999994,
+    "mcap_1wk_delta_bn": 5.746181781005859,
+    "mcap_1mo_delta_bn": 19.181450408935547,
+    "price": 988.07,
+    "market_cap_bn": 88.629878784
+  },
+  {
+    "symbol": "COHR",
+    "company": "Coherent",
+    "industry": "Scientific & Technical Instruments",
+    "announced": "2026-03-06",
+    "effective": "2026-03-23",
+    "spinoff": false,
+    "price_1wk_before": 247.3699951171875,
+    "price_pre_ann": 235.72000122070312,
+    "pct_eod_after_ann": 7.042256073965114,
+    "pct_1wk_after_ann": 2.98659140067683,
+    "pct_1mo_after_ann": 7.424062408524623,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 46.16157726617303,
+    "mcap_d1_delta_bn": 3.2508164788651754,
+    "mcap_1wk_delta_bn": 1.378657697048311,
+    "mcap_1mo_delta_bn": 3.427064305000002,
+    "price": 309.25,
+    "market_cap_bn": 60.56112128
+  },
+  {
+    "symbol": "ECHO",
+    "company": "EchoStar",
+    "industry": "Telecom Services",
+    "announced": "2026-03-06",
+    "effective": "2026-03-23",
+    "spinoff": false,
+    "price_1wk_before": 114.33000183105469,
+    "price_pre_ann": 106.23999786376953,
+    "pct_eod_after_ann": 3.463855778587832,
+    "pct_1wk_after_ann": 1.9766552299953055,
+    "pct_1mo_after_ann": 19.493598927805778,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 16.9072712376355,
+    "mcap_d1_delta_bn": 0.5856434917663584,
+    "mcap_1wk_delta_bn": 0.3341984611682136,
+    "mcap_1mo_delta_bn": 3.295835644700926,
+    "price": 94.71,
+    "market_cap_bn": 27.512375296
+  },
+  {
+    "symbol": "CIEN",
+    "company": "Ciena",
+    "industry": "Communication Equipment",
+    "announced": "2026-02-04",
+    "effective": "2026-02-09",
+    "spinoff": false,
+    "price_1wk_before": 268.489990234375,
+    "price_pre_ann": 253.5,
+    "pct_eod_after_ann": -0.2051298905171306,
+    "pct_1wk_after_ann": 17.258382642998036,
+    "pct_1mo_after_ann": 16.04339780186761,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 35.9484610875,
+    "mcap_d1_delta_bn": -0.07374103887138261,
+    "mcap_1wk_delta_bn": 6.204122968749999,
+    "mcap_1mo_delta_bn": 5.767354615917206,
+    "price": 343.2392,
+    "market_cap_bn": 48.674246656
+  },
+  {
+    "symbol": "CRH",
+    "company": "CRH",
+    "industry": "Building Materials",
+    "announced": "2025-12-05",
+    "effective": "2025-12-22",
+    "spinoff": false,
+    "price_1wk_before": 125.84938049316406,
+    "price_pre_ann": 118.1655044555664,
+    "pct_eod_after_ann": 5.900076503456919,
+    "pct_1wk_after_ann": 5.782916259609183,
+    "pct_1mo_after_ann": 7.381372993317692,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 78.61367984878983,
+    "mcap_d1_delta_bn": 4.63826725326129,
+    "mcap_1wk_delta_bn": 4.546163274252763,
+    "mcap_1mo_delta_bn": 5.802768933411784,
+    "price": 92.415,
+    "market_cap_bn": 61.482266624
+  },
+  {
+    "symbol": "CVNA",
+    "company": "Carvana",
+    "industry": "Auto & Truck Dealerships",
+    "announced": "2025-12-05",
+    "effective": "2025-12-22",
+    "spinoff": false,
+    "price_1wk_before": 89.58399963378906,
+    "price_pre_ann": 79.9540023803711,
+    "pct_eod_after_ann": 12.059431678160436,
+    "pct_1wk_after_ann": 13.98554027770369,
+    "pct_1mo_after_ann": 7.576854787589493,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 57.560198758578224,
+    "mcap_d1_delta_bn": 6.941432843104096,
+    "mcap_1wk_delta_bn": 8.050104781307255,
+    "mcap_1mo_delta_bn": 4.361252675385359,
+    "price": 74.22,
+    "market_cap_bn": 82.270183424
+  },
+  {
+    "symbol": "FIX",
+    "company": "Comfort Systems USA",
+    "industry": "Engineering & Construction",
+    "announced": "2025-12-05",
+    "effective": "2025-12-22",
+    "spinoff": false,
+    "price_1wk_before": 967.09716796875,
+    "price_pre_ann": 1000.0499877929688,
+    "pct_eod_after_ann": -1.1982250154853658,
+    "pct_1wk_after_ann": -3.348044308576126,
+    "pct_1mo_after_ann": 3.0784532926485086,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 35.196088286831724,
+    "mcap_d1_delta_bn": -0.421728334325131,
+    "mcap_1wk_delta_bn": -1.1783806307286966,
+    "mcap_1mo_delta_bn": 1.0834951387494556,
+    "price": 1650.25,
+    "market_cap_bn": 58.079440896
+  },
+  {
+    "symbol": "ARES",
+    "company": "Ares Management",
+    "industry": "Asset Management",
+    "announced": "2025-12-08",
+    "effective": "2025-12-11",
+    "spinoff": false,
+    "price_1wk_before": 158.2476806640625,
+    "price_pre_ann": 159.40249633789062,
+    "pct_eod_after_ann": 7.268966502217666,
+    "pct_1wk_after_ann": 5.1260113097062465,
+    "pct_1mo_after_ann": 4.656662520501875,
+    "pct_1yr_after_ann": null,
+    "mcap_pre_bn": 35.39188456536014,
+    "mcap_d1_delta_bn": 2.572624233559573,
+    "mcap_1wk_delta_bn": 1.814192005538544,
+    "mcap_1mo_delta_bn": 1.648080623854419,
+    "price": 139.94,
+    "market_cap_bn": 46.158737408
+  }
+];
+
+function fmtPx(v) {
+  return (v === null || v === undefined || isNaN(v)) ? '<span class="na">n/a</span>' : '$' + Number(v).toFixed(2);
+}
+function fmtPct(v) {
+  if (v === null || v === undefined || isNaN(v)) return '<span class="na">n/a</span>';
+  const cls = v > 0 ? 'pos' : (v < 0 ? 'neg' : '');
+  const sign = v > 0 ? '+' : '';
+  return '<span class="' + cls + '">' + sign + Number(v).toFixed(2) + '%</span>';
+}
+function fmtBn(v, signed) {
+  if (v === null || v === undefined || isNaN(v)) return '<span class="na">n/a</span>';
+  const cls = signed ? (v > 0 ? 'pos' : (v < 0 ? 'neg' : '')) : '';
+  const sign = signed && v > 0 ? '+' : '';
+  return '<span class="' + cls + '">' + sign + Number(v).toFixed(1) + 'B</span>';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    let html = '';
+    STOCKS_DATA.forEach(r => {
+        html += `<tr>
+            <td>
+              <a href="https://finance.yahoo.com/quote/${r.symbol}" target="_blank" style="color:var(--gold);font-weight:700;text-decoration:none;">${r.symbol}</a>
+              <a href="https://www.tradingview.com/symbols/${r.symbol}/" target="_blank" style="text-decoration:none;">📈</a><br>
+              <span style="color:var(--yellow);font-size:0.72rem;">${r.company}</span>
+            </td>
+            <td>${r.announced}</td>
+            <td>${r.effective}</td>
+            <td>${fmtPx(r.price_1wk_before)}</td>
+            <td>${fmtPx(r.price_pre_ann)}</td>
+            <td>${fmtPct(r.pct_eod_after_ann)}</td>
+            <td>${fmtPct(r.pct_1wk_after_ann)}</td>
+            <td>${fmtPct(r.pct_1mo_after_ann)}</td>
+            <td>${fmtPct(r.pct_1yr_after_ann)}</td>
+            <td>${fmtBn(r.mcap_pre_bn, false)}</td>
+            <td>${fmtBn(r.mcap_d1_delta_bn, true)}</td>
+            <td>${fmtBn(r.mcap_1wk_delta_bn, true)}</td>
+            <td>${fmtBn(r.mcap_1mo_delta_bn, true)}</td>
+            <td>${fmtPx(r.price)}</td>
+            <td>${fmtBn(r.market_cap_bn, false)}</td>
+        </tr>`;
+    });
+    $('#stocksTable tbody').html(html);
+    $('#stocksTable').DataTable({
+        pageLength: 25,
+        lengthChange: false,
+        order: [[1, "desc"]],
+        columnDefs: [{
+            targets: [3,4,5,6,7,8,9,10,11,12,13,14],
+            type: 'num',
+            render: function(data, type) {
+                if (type === 'sort' || type === 'filter') {
+                    const n = parseFloat(String(data).replace(/[^0-9.\-]/g, ''));
+                    return isNaN(n) ? null : n;
+                }
+                return data;
+            }
+        }]
+    });
+});
+</script>
+</head>
+<body>
+<div class="header">
+  <h1>S&P 500 — Last 20 Additions</h1>
+  <p class="sub">Yahoo Finance live prices and history • announcement-to-later return study</p>
+  <div style="margin-top:12px;"><span class="live-badge">YAHOO LIVE</span></div>
+</div>
+<div class="controls">
+  <a href="index.html">Growth Stocks Report</a>
+  <div class="center-warning">Not financial advice. % changes vs pre-announcement close. Spin-offs have no prior ticker price. 1-year column fills only after that anniversary.</div>
+  <a href="https://finance.yahoo.com" target="_blank">Yahoo Finance</a>
+</div>
+<div id="stocksTable_wrapper">
+<table id="stocksTable" class="display">
+<thead>
+  <tr>
+    <th>Symbol</th>
+    <th>Announced</th>
+    <th>Effective</th>
+    <th>Px 1wk before add</th>
+    <th>Pre-ann close</th>
+    <th>% EOD after ann.</th>
+    <th>% 1wk after ann.</th>
+    <th>% 1mo after ann.</th>
+    <th>% 1yr after ann.</th>
+    <th>Mkt cap pre-ann</th>
+    <th>Mkt cap Δ +1d</th>
+    <th>Mkt cap Δ +1wk</th>
+    <th>Mkt cap Δ +1mo</th>
+    <th>Live price</th>
+    <th>Live mkt cap</th>
+  </tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+<p class="footer-note">Built 2026-09-08 11:46 AM from Yahoo Finance for 20 additions. Re-run <code>python sp500_additions.py</code> to refresh.</p>
+<p class="footer-note">Contact: JLITZ100@GMAIL.COM • <a href="https://gettingolder.org" target="_blank">Getting Older Travel Services</a></p>
+</body>
+</html>

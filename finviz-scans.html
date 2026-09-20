@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finviz Scans</title><p>You can save each of these scans as a portfolio to track them. Just scroll down to save.  You must sign in to save. </p>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 0 16px;
+      line-height: 1.5;
+      color: #222;
+    }
+    h1 { margin-bottom: 8px; }
+    .source { color: #555; margin-bottom: 28px; }
+    .scan {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+    }
+    .scan h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .filters {
+      margin: 0 0 12px;
+      color: #444;
+      font-size: 14px;
+    }
+    a.btn {
+      display: inline-block;
+      background: #1a73e8;
+      color: #fff;
+      text-decoration: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    a.btn:hover { background: #1558b0; }
+  </style>
+</head>
+<body>
+  <h1>Finviz Scans</h1>
+  <p class="source">
+    From
+    <a href="https://bullcryptosignals.com/blog/best-finviz-screener-settings/" target="_blank" rel="noopener">
+      Best Finviz Screener Settings
+    </a>
+  </p>
+
+  <div class="scan">
+    <h2>1) Buy and hold — steady growers</h2>
+    <p class="filters">Market Cap over $50M, price above 20-day MA, Beta over 1.5, EPS growth next 5 years over 10%, ROE over 15%, Current Ratio over 1.5</p>
+    <a class="btn" href="https://finviz.com/screener.ashx?v=111&f=cap_microover,ta_sma20_pa,ta_beta_o1.5,fa_estltgrowth_o10,fa_roe_o15,fa_curratio_o1.5&ft=4" target="_blank" rel="noopener">Open Scan</a>
+  </div>
+
+  <div class="scan">
+    <h2>2) Oversold bounce plays</h2>
+    <p class="filters">Price over $5, RSI Oversold (30), Change Up, Relative Volume over 2</p>
+    <a class="btn" href="https://finviz.com/screener.ashx?v=111&f=sh_price_o5,ta_rsi_os30,ta_change_u,sh_relvol_o2&ft=4" target="_blank" rel="noopener">Open Scan</a>
+  </div>
+
+  <div class="scan">
+    <h2>3) Breakouts — catch the next run</h2>
+    <p class="filters">Price above 20/50/200-day MAs, 50-day new high, ROE over 20%, Debt/Equity under 1, Average Volume over 100k</p>
+    <a class="btn" href="https://finviz.com/screener.ashx?v=111&f=ta_sma20_pa,ta_sma50_pa,ta_sma200_pa,ta_highlow50d_nh,fa_roe_o20,fa_debteq_u1,sh_avgvol_o100&ft=4" target="_blank" rel="noopener">Open Scan</a>
+  </div>
+
+  <div class="scan">
+    <h2>4) Short plays — trade weakness</h2>
+    <p class="filters">Market Cap over $300M, Short Float over 20%, Average Volume over 500k, Relative Volume over 1, Current Volume over 500k</p>
+    <a class="btn" href="https://finviz.com/screener.ashx?v=111&f=cap_smallover,sh_short_o20,sh_avgvol_o500,sh_relvol_o1,sh_curvol_o500&ft=4" target="_blank" rel="noopener">Open Scan</a>
+  </div>
+
+  <div class="scan">
+    <h2>5) Bounce off moving averages</h2>
+    <p class="filters">Price above 20-day MA and below 50-day MA, Average Volume over 400k, Relative Volume over 1, Current Volume over 2M</p>
+    <a class="btn" href="https://finviz.com/screener.ashx?v=111&f=ta_sma20_pa,ta_sma50_pb,sh_avgvol_o400,sh_relvol_o1,sh_curvol_o2000&ft=4" target="_blank" rel="noopener">Open Scan</a>
+  </div>
+
+  <div class="scan">
+    <h2>6) Dividend picks — undervalued growers that pay</h2>
+    <p class="filters">Market Cap over $10B, Dividend Yield over 0%, P/E under 20, EPS growth past 5 years over 5%, Payout Ratio under 50%, PEG Low (under 1), EPS growth next year over 5%</p>
+    <a class="btn" href="https://finviz.com/screener.ashx?v=111&f=cap_largeover,fa_div_pos,fa_pe_u20,fa_eps5years_o5,fa_payoutratio_u50,fa_peg_low,fa_epsyoy1_o5&ft=4" target="_blank" rel="noopener">Open Scan</a>
+  </div>
+
+  <div class="scan">
+    <h2>7) High earnings and rapid growth</h2>
+    <p class="filters">Price above 200-day MA, Average Volume over 400k, EPS growth this year / quarter / next year over 25%, Sales growth quarter over 25%, RSI not oversold (over 50)</p>
+    <a class="btn" href="https://finviz.com/screener.ashx?v=111&f=ta_sma200_pa,sh_avgvol_o400,fa_epsyoy_o25,fa_epsqoq_o25,fa_epsyoy1_o25,fa_salesqoq_o25,ta_rsi_nos50&ft=4" target="_blank" rel="noopener">Open Scan</a>
+  </div>
+</body>
+</html>

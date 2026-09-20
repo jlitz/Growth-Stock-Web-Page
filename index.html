@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>Top Stocks Report — Live Data</title>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+<script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+<style>
+  :root {
+    --bg: #0f1119;
+    --surface: #1a1d2e;
+    --surface2: #232740;
+    --border: #3a4060;
+    --text: #f0f2fa;
+    --muted: #c8ccdb;
+    --accent: #00d4aa;
+    --gold: #f5c842;
+    --yellow: #ffd966;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px 20px;
+  }
+  .header { width: 100%; max-width: 1200px; margin-bottom: 28px; text-align: center; }
+  .header h1 { font-size: 2rem; font-weight: 700; margin: 0 0 6px; color: #f5c842; }
+  .header .sub { color: #ffffff; font-size: 0.95rem; margin: 0; }
+  .header .meta { display: flex; justify-content: center; gap: 24px; margin-top: 14px; font-size: 0.82rem; color: var(--yellow); }
+  .header .meta a { background: var(--surface); padding: 5px 14px; border-radius: 20px; border: 1px solid var(--border); color: var(--yellow); text-decoration: none; transition: all 0.15s; }
+  .header .meta a:hover { background: var(--surface2); border-color: var(--accent); transform: scale(1.03); }
+  .controls { width: 100%; max-width: 1200px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
+  .controls .left-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .controls .left-links a { color: var(--yellow); background: var(--surface); padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); text-decoration: none; font-weight: 700; transition: all 0.15s; white-space: nowrap; }
+  .controls .left-links a:hover { background: var(--surface2); border-color: var(--accent); transform: scale(1.03); }
+  .controls .center-warning { font-size: 0.8rem; color: var(--muted); text-align: center; flex: 1 1 auto; padding: 0 8px; }
+  .controls .right-links { display: flex; gap: 10px; flex-wrap: wrap; }
+  .controls .right-links a { color: var(--yellow); background: var(--surface); padding: 7px 16px; border-radius: 20px; border: 1px solid var(--border); text-decoration: none; font-weight: 700; transition: all 0.15s; white-space: nowrap; }
+  .controls .right-links a:hover { background: var(--surface2); border-color: var(--accent); transform: scale(1.03); }
+  #stocksTable_wrapper { width: 100%; max-width: 1200px; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 30px rgba(0,0,0,0.4); }
+  #stocksTable thead th { background: var(--surface2); color: var(--text); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.6px; padding: 12px 10px; border-bottom: 2px solid var(--border); text-align: center; white-space: nowrap; }
+  #stocksTable tbody td { padding: 10px 10px; text-align: center; font-size: 0.88rem; border-bottom: 1px solid var(--border); color: var(--text); }
+  #stocksTable tbody tr:hover { background: var(--surface2); }
+  #stocksTable tbody td:first-child { font-weight: 700; color: var(--gold); font-size: 0.95rem; }
+  #stocksTable tbody td:nth-child(2) { color: var(--yellow); font-size: 0.8rem; }
+  #stocksTable tbody td:nth-child(4) { font-family: monospace; font-weight: 600; color: var(--gold); }
+  .dataTables_length, .dataTables_filter, .dataTables_info, .dataTables_paginate { color: var(--muted); font-size: 0.8rem; padding: 10px 14px; background: var(--surface); border-top: 1px solid var(--border); }
+  .dataTables_length { display: none !important; }
+  .dataTables_filter input { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 4px 8px; border-radius: 4px; font-family: inherit; font-size: 0.8rem; width: 180px; }
+  .footer-note { margin-top: 24px; color: var(--muted); font-size: 0.8rem; text-align: center; max-width: 800px; }
+  .footer-note a { color: var(--yellow); text-decoration: underline; text-underline-offset: 3px; }
+  .footer-note a:hover { color: var(--gold); }
+  .live-badge { font-size: 0.7rem; background: #00d4aa20; padding: 2px 10px; border-radius: 20px; color: var(--accent); border: 1px solid var(--accent); }
+  @media (max-width: 700px) { .controls { flex-direction: column; align-items: stretch; gap: 8px; } .controls .left-links, .controls .right-links { justify-content: center; } .controls .center-warning { padding: 4px 0; } }
+</style>
+<script>
+// ------- EMBEDDED FUNDAMENTALS (generated by Python at 2026-09-08 11:37 AM) -------
+const STOCKS_DATA = [
+  {
+    "symbol": "INTU",
+    "industry": "Software - Application",
+    "market_cap_bn": 86.173728768,
+    "rev_qoq_pct": 13.700000000000001,
+    "rev_yoy_pct": NaN,
+    "price": 315.035,
+    "price_1y_ago": 664.2181396484375,
+    "price_1m_ago": 325.25,
+    "price_yesterday": 332.70001220703125,
+    "chg_today_pct": -5.309591691880886
+  },
+  {
+    "symbol": "BE",
+    "industry": "Electrical Equipment & Parts",
+    "market_cap_bn": 82.167242752,
+    "rev_qoq_pct": 165.5,
+    "rev_yoy_pct": 165.51682027305216,
+    "price": 279.155,
+    "price_1y_ago": 53.439998626708984,
+    "price_1m_ago": 219.33999633789062,
+    "price_yesterday": 252.8699951171875,
+    "chg_today_pct": 10.394671329285714
+  },
+  {
+    "symbol": "META",
+    "industry": "Internet Content & Information",
+    "market_cap_bn": 1571.195322368,
+    "rev_qoq_pct": 28.000000000000004,
+    "rev_yoy_pct": 27.95900328310464,
+    "price": 616.7582,
+    "price_1y_ago": 749.84228515625,
+    "price_1m_ago": 592.0999755859375,
+    "price_yesterday": 616.77001953125,
+    "chg_today_pct": -0.0019163595628391504
+  },
+  {
+    "symbol": "AMZN",
+    "industry": "Internet Retail",
+    "market_cap_bn": 2769.763434496,
+    "rev_qoq_pct": 19.6,
+    "rev_yoy_pct": NaN,
+    "price": 256.785,
+    "price_1y_ago": 235.83999633789062,
+    "price_1m_ago": 274.4800109863281,
+    "price_yesterday": 258.510009765625,
+    "chg_today_pct": -0.667289350686627
+  },
+  {
+    "symbol": "MU",
+    "industry": "Semiconductors",
+    "market_cap_bn": 1151.997968384,
+    "rev_qoq_pct": 345.7,
+    "rev_yoy_pct": 345.71551446081065,
+    "price": 1020.015,
+    "price_1y_ago": 131.24935913085938,
+    "price_1m_ago": 877.5700073242188,
+    "price_yesterday": 1016.5900268554688,
+    "chg_today_pct": 0.33690800165779844
+  },
+  {
+    "symbol": "AXTI",
+    "industry": "Semiconductor Equipment & Materials",
+    "market_cap_bn": 4.465535488,
+    "rev_qoq_pct": 164.79999999999998,
+    "rev_yoy_pct": 164.76577278290864,
+    "price": 68.1,
+    "price_1y_ago": 3.109999895095825,
+    "price_1m_ago": 88.58000183105469,
+    "price_yesterday": 61.63999938964844,
+    "chg_today_pct": 10.480208751326533
+  },
+  {
+    "symbol": "LITE",
+    "industry": "Communication Equipment",
+    "market_cap_bn": 88.608350208,
+    "rev_qoq_pct": 109.3,
+    "rev_yoy_pct": 109.34054503848554,
+    "price": 987.83,
+    "price_1y_ago": 149.39999389648438,
+    "price_1m_ago": 890.1699829101562,
+    "price_yesterday": 881.2550048828125,
+    "chg_today_pct": 12.093547784316943
+  },
+  {
+    "symbol": "NVDA",
+    "industry": "Semiconductors",
+    "market_cap_bn": 5470.985650176,
+    "rev_qoq_pct": 105.89999999999999,
+    "rev_yoy_pct": 105.85114348672529,
+    "price": 226.57,
+    "price_1y_ago": 168.0861358642578,
+    "price_1m_ago": 223.9600067138672,
+    "price_yesterday": 230.36000061035156,
+    "chg_today_pct": -1.6452511722129506
+  },
+  {
+    "symbol": "ALAB",
+    "industry": "Semiconductors",
+    "market_cap_bn": 52.128804864,
+    "rev_qoq_pct": 104.5,
+    "rev_yoy_pct": 104.45486518171161,
+    "price": 300.48,
+    "price_1y_ago": 216.10000610351562,
+    "price_1m_ago": 334.1700134277344,
+    "price_yesterday": 310.3999938964844,
+    "chg_today_pct": -3.195874385162709
+  },
+  {
+    "symbol": "SMCI",
+    "industry": "Computer Hardware",
+    "market_cap_bn": 27.11197696,
+    "rev_qoq_pct": 93.2,
+    "rev_yoy_pct": 93.1552702482286,
+    "price": 41.2685,
+    "price_1y_ago": 40.040000915527344,
+    "price_1m_ago": 31.1299991607666,
+    "price_yesterday": 39.59000015258789,
+    "chg_today_pct": 4.2397065949553765
+  },
+  {
+    "symbol": "PLTR",
+    "industry": "Software - Infrastructure",
+    "market_cap_bn": 412.155772928,
+    "rev_qoq_pct": 92.80000000000001,
+    "rev_yoy_pct": 92.8334945705726,
+    "price": 171.513,
+    "price_1y_ago": 156.10000610351562,
+    "price_1m_ago": 172.00999450683594,
+    "price_yesterday": 174.3300018310547,
+    "chg_today_pct": -1.6159019110116646
+  },
+  {
+    "symbol": "NBIX",
+    "industry": "Drug Manufacturers - Specialty & Generic",
+    "market_cap_bn": 15.898440704,
+    "rev_qoq_pct": 39.5,
+    "rev_yoy_pct": 39.49090909090909,
+    "price": 156.405,
+    "price_1y_ago": 143.8000030517578,
+    "price_1m_ago": 163.41000366210938,
+    "price_yesterday": 155.63999938964844,
+    "chg_today_pct": 0.49151928382906657
+  },
+  {
+    "symbol": "CRWD",
+    "industry": "Software - Infrastructure",
+    "market_cap_bn": 214.524592128,
+    "rev_qoq_pct": 25.8,
+    "rev_yoy_pct": 25.830401932671315,
+    "price": 209.51,
+    "price_1y_ago": 107.01499938964844,
+    "price_1m_ago": 214.4199981689453,
+    "price_yesterday": 213.10000610351562,
+    "chg_today_pct": -1.6846579074107346
+  },
+  {
+    "symbol": "TSLA",
+    "industry": "Auto Manufacturers",
+    "market_cap_bn": 1443.452289024,
+    "rev_qoq_pct": 25.5,
+    "rev_yoy_pct": 25.51564722617354,
+    "price": 365.4728,
+    "price_1y_ago": 346.3999938964844,
+    "price_1m_ago": 328.5799865722656,
+    "price_yesterday": 354.0799865722656,
+    "chg_today_pct": 3.217581862794489
+  },
+  {
+    "symbol": "ZS",
+    "industry": "Software - Infrastructure",
+    "market_cap_bn": 26.20941312,
+    "rev_qoq_pct": 24.9,
+    "rev_yoy_pct": 25.43250043508143,
+    "price": 160.74,
+    "price_1y_ago": 281.6000061035156,
+    "price_1m_ago": 168.67999267578125,
+    "price_yesterday": 169.8000030517578,
+    "chg_today_pct": -5.335690747305915
+  },
+  {
+    "symbol": "GOOGL",
+    "industry": "Internet Content & Information",
+    "market_cap_bn": 4137.386770432,
+    "rev_qoq_pct": 24.2,
+    "rev_yoy_pct": 24.23362508814867,
+    "price": 338.3,
+    "price_1y_ago": 233.43292236328125,
+    "price_1m_ago": 354.0723876953125,
+    "price_yesterday": 338.4599914550781,
+    "chg_today_pct": -0.047270418695660926
+  },
+  {
+    "symbol": "NOW",
+    "industry": "Software - Application",
+    "market_cap_bn": 139.654086656,
+    "rev_qoq_pct": 24.0,
+    "rev_yoy_pct": 24.01244167962675,
+    "price": 135.08,
+    "price_1y_ago": 187.86599731445312,
+    "price_1m_ago": 124.87999725341797,
+    "price_yesterday": 141.25999450683594,
+    "chg_today_pct": -4.3749077921257165
+  },
+  {
+    "symbol": "TSEM",
+    "industry": "Semiconductors",
+    "market_cap_bn": 25.426376704,
+    "rev_qoq_pct": 23.7,
+    "rev_yoy_pct": 23.656873469672984,
+    "price": 224.95,
+    "price_1y_ago": 64.8499984741211,
+    "price_1m_ago": 252.49000549316406,
+    "price_yesterday": 222.33999633789062,
+    "chg_today_pct": 1.1738795111532407
+  },
+  {
+    "symbol": "MSFT",
+    "industry": "Software - Infrastructure",
+    "market_cap_bn": 3659.717410816,
+    "rev_qoq_pct": 17.7,
+    "rev_yoy_pct": 17.74702057796209,
+    "price": 492.855,
+    "price_1y_ago": 494.1344299316406,
+    "price_1m_ago": 499.0505065917969,
+    "price_yesterday": 499.70001220703125,
+    "chg_today_pct": -1.3698243025447971
+  },
+  {
+    "symbol": "AAPL",
+    "industry": "Consumer Electronics",
+    "market_cap_bn": 4615.555776512,
+    "rev_qoq_pct": 16.400000000000002,
+    "rev_yoy_pct": 16.35650176528138,
+    "price": 316.26,
+    "price_1y_ago": 237.00450134277344,
+    "price_1m_ago": 313.05999755859375,
+    "price_yesterday": 319.9700012207031,
+    "chg_today_pct": -1.1594840786790248
+  },
+  {
+    "symbol": "VSXY",
+    "industry": "Apparel Retail",
+    "market_cap_bn": 6.242333696,
+    "rev_qoq_pct": 10.4,
+    "rev_yoy_pct": 15.299334811529933,
+    "price": 78.26,
+    "price_1y_ago": 25.649999618530273,
+    "price_1m_ago": 98.54000091552734,
+    "price_yesterday": 75.55999755859375,
+    "chg_today_pct": 3.5733225630566112
+  },
+  {
+    "symbol": "SPOT",
+    "industry": "Internet Content & Information",
+    "market_cap_bn": 109.01102592,
+    "rev_qoq_pct": 13.900000000000002,
+    "rev_yoy_pct": 13.927975196756497,
+    "price": 530.25,
+    "price_1y_ago": 718.280029296875,
+    "price_1m_ago": 488.1400146484375,
+    "price_yesterday": 542.4299926757812,
+    "chg_today_pct": -2.2454497059976215
+  },
+  {
+    "symbol": "NFLX",
+    "industry": "Entertainment",
+    "market_cap_bn": 319.374163968,
+    "rev_qoq_pct": 13.4,
+    "rev_yoy_pct": 13.365374252899542,
+    "price": 76.7,
+    "price_1y_ago": 124.47599792480469,
+    "price_1m_ago": 74.13999938964844,
+    "price_yesterday": 78.25,
+    "chg_today_pct": -1.980830670926514
+  },
+  {
+    "symbol": "TTD",
+    "industry": "Advertising Agencies",
+    "market_cap_bn": 6.552479232,
+    "rev_qoq_pct": 3.0,
+    "rev_yoy_pct": 3.0283600777477924,
+    "price": 13.945,
+    "price_1y_ago": 52.029998779296875,
+    "price_1m_ago": 13.800000190734863,
+    "price_yesterday": 14.430000305175781,
+    "chg_today_pct": -3.3610554048416765
+  },
+  {
+    "symbol": "VICR",
+    "industry": "Electronic Components",
+    "market_cap_bn": 8.921191424,
+    "rev_qoq_pct": 49.3,
+    "rev_yoy_pct": 1.634927612268338,
+    "price": 193.49,
+    "price_1y_ago": 50.560001373291016,
+    "price_1m_ago": 221.1999969482422,
+    "price_yesterday": 188.5500030517578,
+    "chg_today_pct": 2.6199930354210315
+  },
+  {
+    "symbol": "DELL",
+    "industry": "Computer Hardware",
+    "market_cap_bn": 339.625377792,
+    "rev_qoq_pct": 57.699999999999996,
+    "rev_yoy_pct": NaN,
+    "price": 525.62,
+    "price_1y_ago": 121.45233917236328,
+    "price_1m_ago": 453.7699890136719,
+    "price_yesterday": 524.1400146484375,
+    "chg_today_pct": 0.2823645037967941
+  },
+  {
+    "symbol": "QQQ",
+    "industry": "N/A",
+    "market_cap_bn": null,
+    "rev_qoq_pct": null,
+    "rev_yoy_pct": null,
+    "price": 719.969970703125,
+    "price_1y_ago": 576.0953979492188,
+    "price_1m_ago": 723.030029296875,
+    "price_yesterday": 718.9600219726562,
+    "chg_today_pct": 0.14047355897448785
+  },
+  {
+    "symbol": "SPY",
+    "industry": "N/A",
+    "market_cap_bn": null,
+    "rev_qoq_pct": null,
+    "rev_yoy_pct": null,
+    "price": 767.47998046875,
+    "price_1y_ago": 641.7196044921875,
+    "price_1m_ago": 773.260009765625,
+    "price_yesterday": 770.1900024414062,
+    "chg_today_pct": -0.35186408081977416
+  }
+];
+
+document.addEventListener('DOMContentLoaded', function() {
+    const symbols = STOCKS_DATA.map(s => s.symbol).join(',');
+
+    function renderTable(data, isCached) {
+        try {
+            let html = '';
+            data.forEach(r => {
+                const priceDisplay = (r.price !== null && r.price !== undefined && !isNaN(r.price)) ? r.price.toFixed(2) : 'N/A';
+                const cachedMark = isCached ? ' (cached)' : '';
+                const chgTodayDisplay = (r.chg_today_pct !== null && r.chg_today_pct !== undefined && !isNaN(r.chg_today_pct)) ? r.chg_today_pct.toFixed(1) : 'N/A';
+                const revQoQ = (r.rev_qoq_pct !== null && r.rev_qoq_pct !== undefined && !isNaN(r.rev_qoq_pct)) ? r.rev_qoq_pct.toFixed(1) : 'N/A';
+                const revYoY = (r.rev_yoy_pct !== null && r.rev_yoy_pct !== undefined && !isNaN(r.rev_yoy_pct)) ? r.rev_yoy_pct.toFixed(1) : 'N/A';
+                const priceYoY = (r.price_yoy_pct !== null && r.price_yoy_pct !== undefined && !isNaN(r.price_yoy_pct)) ? r.price_yoy_pct.toFixed(1) : 'N/A';
+                const priceMoM = (r.price_mom_pct !== null && r.price_mom_pct !== undefined && !isNaN(r.price_mom_pct)) ? r.price_mom_pct.toFixed(1) : 'N/A';
+                const marketCap = (r.market_cap_bn !== null && r.market_cap_bn !== undefined && !isNaN(r.market_cap_bn)) ? r.market_cap_bn.toFixed(1) + 'B' : 'N/A';
+
+                html += `<tr>
+                    <td><a href="https://finance.yahoo.com/quote/${r.symbol}" target="_blank" style="color:var(--gold);font-weight:700;text-decoration:none;">${r.symbol}</a> <a href="https://www.tradingview.com/symbols/${r.symbol}/" target="_blank" title="Chart" style="text-decoration:none;">📈</a></td>
+                    <td>${r.industry}</td>
+                    <td>${chgTodayDisplay}</td>
+                    <td>${marketCap}</td>
+                    <td>${revQoQ}</td>
+                    <td>${revYoY}</td>
+                    <td>${priceDisplay}${cachedMark}</td>
+                    <td>${priceYoY}</td>
+                    <td>${priceMoM}</td>
+                </tr>`;
+            });
+            $('#stocksTable tbody').html(html);
+            if ($.fn.DataTable.isDataTable('#stocksTable')) {
+                $('#stocksTable').DataTable().destroy();
+            }
+            $('#stocksTable').DataTable({
+                pageLength: 50,
+                lengthChange: false,
+                order: [[5, "desc"]],
+                columnDefs: [
+                    { targets: 3, type: 'num', render: (data, type) => {
+                        if (type === 'sort' || type === 'filter') {
+                            let n = parseFloat(String(data).replace('B','').replace('N/A',''));
+                            return isNaN(n) ? null : n;
+                        }
+                        return data;
+                    }},
+                    { targets: [2,4,5,7,8], type: 'num', render: (data, type) => {
+                        if (type === 'sort' || type === 'filter') {
+                            let n = parseFloat(String(data).replace('N/A',''));
+                            return isNaN(n) ? null : n;
+                        }
+                        return data;
+                    }}
+                ]
+            });
+        } catch (e) { console.error('Error rendering table:', e); }
+    }
+
+    // Calculate YoY/MoM for initial render from embedded data
+    const tableData = STOCKS_DATA.map(r => {
+        const price = r.price;
+        const price1y = r.price_1y_ago;
+        const price1m = r.price_1m_ago;
+        const priceYoY = (price && price1y) ? ((price - price1y)/price1y*100) : null;
+        const priceMoM = (price && price1m) ? ((price - price1m)/price1m*100) : null;
+        return { ...r, price_yoy_pct: priceYoY, price_mom_pct: priceMoM };
+    });
+    renderTable(tableData, true);
+    document.getElementById('updateTime').textContent = `Loaded cached Yahoo data — fetching live prices (Yahoo first, Twelve Data in batches of 8)...`;
+
+    // Free Twelve Data = 8 credits/minute. Each symbol costs 1 credit.
+    // Do NOT request all 28 symbols in one URL.
+    const TWELVE_API_KEY = "9f685148215a4c638f482ab5cb0ddfa3";
+    const BATCH_SIZE = 8;
+    const BATCH_WAIT_MS = 65000;
+    const allSymbols = STOCKS_DATA.map(s => s.symbol);
+    let liveMap = {};
+    try {
+        const cachedLive = JSON.parse(localStorage.getItem('livePricesCache') || '{}');
+        if (cachedLive.prices) liveMap = cachedLive.prices;
+    } catch (e) {}
+
+    function applyLiveMap(map, label) {
+        const updated = tableData.map(r => {
+            if (map[r.symbol]) {
+                const newPrice = map[r.symbol];
+                const priceYoY = r.price_1y_ago ? ((newPrice - r.price_1y_ago)/r.price_1y_ago*100) : r.price_yoy_pct;
+                const priceMoM = r.price_1m_ago ? ((newPrice - r.price_1m_ago)/r.price_1m_ago*100) : r.price_mom_pct;
+                const chgToday = r.price_yesterday ? ((newPrice - r.price_yesterday)/r.price_yesterday*100) : r.chg_today_pct;
+                return { ...r, price: newPrice, price_yoy_pct: priceYoY, price_mom_pct: priceMoM, chg_today_pct: chgToday, hasLive: true };
+            }
+            return r;
+        });
+        renderTable(updated, false);
+        const n = Object.keys(map).length;
+        document.getElementById('updateTime').textContent = `${label} — ${n}/${allSymbols.length} symbols priced as of ${new Date().toLocaleString()}. After hours shows last trade.`;
+        try { localStorage.setItem('livePricesCache', JSON.stringify({ prices: map, ts: Date.now() })); } catch (e) {}
+    }
+
+    function parseTwelve(data) {
+        const map = {};
+        if (!data) return map;
+        if (data.code && data.code >= 400) throw new Error(data.message || 'Twelve Data error');
+        for (let sym in data) {
+            if (data[sym] && data[sym].price) map[sym] = parseFloat(data[sym].price);
+        }
+        if (data.price && allSymbols.length === 1) map[allSymbols[0]] = parseFloat(data.price);
+        return map;
+    }
+
+    async function fetchYahooBatch(batch) {
+        const map = {};
+        await Promise.all(batch.map(async (sym) => {
+            try {
+                const url = 'https://query1.finance.yahoo.com/v8/finance/chart/' + encodeURIComponent(sym) + '?interval=1d&range=1d';
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) return;
+                const j = await res.json();
+                const meta = j && j.chart && j.chart.result && j.chart.result[0] && j.chart.result[0].meta;
+                const px = meta && (meta.regularMarketPrice || meta.previousClose);
+                if (px) map[sym] = Number(px);
+            } catch (e) {}
+        }));
+        return map;
+    }
+
+    async function fetchTwelveBatch(batch) {
+        const url = 'https://api.twelvedata.com/price?symbol=' + batch.join(',') + '&apikey=' + TWELVE_API_KEY + '&_=' + Date.now();
+        const res = await fetch(url, { cache: 'no-store' });
+        const data = await res.json();
+        return parseTwelve(data);
+    }
+
+    async function refreshAll() {
+        try {
+            const yahooMap = await fetchYahooBatch(allSymbols);
+            if (Object.keys(yahooMap).length >= 8) {
+                liveMap = Object.assign({}, liveMap, yahooMap);
+                applyLiveMap(liveMap, 'Live / last-trade prices from Yahoo');
+                return;
+            }
+        } catch (e) { console.warn('Yahoo batch failed', e); }
+
+        const batches = [];
+        for (let i = 0; i < allSymbols.length; i += BATCH_SIZE) batches.push(allSymbols.slice(i, i + BATCH_SIZE));
+        for (let i = 0; i < batches.length; i++) {
+            try {
+                const part = await fetchTwelveBatch(batches[i]);
+                liveMap = Object.assign({}, liveMap, part);
+                applyLiveMap(liveMap, 'Twelve Data batch ' + (i + 1) + '/' + batches.length);
+            } catch (err) {
+                console.error(err);
+                document.getElementById('updateTime').textContent = 'Twelve Data: ' + err.message + ' Showing cached/partial prices. Next batch in 65s. Free plan = 8 symbols/minute.';
+            }
+            if (i < batches.length - 1) await new Promise(r => setTimeout(r, BATCH_WAIT_MS));
+        }
+    }
+
+    if (Object.keys(liveMap).length) applyLiveMap(liveMap, 'Using last saved live prices, then refreshing');
+    refreshAll();
+});
+</script>
+</head>
+<body>
+
+<div class="header">
+  <h1>Top Stocks Report — Revenue Growth Leaders</h1>
+  <p class="sub">Live prices from Twelve Data • Sorted by YoY Revenue Growth</p>
+  <div class="meta">
+    <a href="https://www.google.com/search?q=FASTEST+GROWING+STOCKS" target="_blank">🔍 Google Search Growth</a>
+    <a href="https://finviz.com/screener" target="_blank">📊 Finviz Screener</a>
+    <span class="live-badge">⚡ LIVE PRICES</span>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="left-links">
+    <a href="sp500_additions.html">S&P 500 Additions</a>
+    <a href="How_To_Customize.html">Change Symbols -Link</a>
+  </div>
+  <div class="center-warning">Not financial advice — do your own research</div>
+  <div class="right-links">
+    <a href="finviz-scans.html">Finviz Scans</a>
+  </div>
+</div>
+
+<div id="stocksTable_wrapper">
+<table id="stocksTable" class="display">
+<thead>
+  <tr>
+    <th>Symbol</th>
+    <th>Industry</th>
+    <th>Today's %</th>
+    <th>Market Cap</th>
+    <th>Rev QoQ %</th>
+    <th>Rev YoY %</th>
+    <th>Price</th>
+    <th>Price Δ YoY %</th>
+    <th>Price Δ MoM %</th>
+  </tr>
+</thead>
+<tbody></tbody>
+</table>
+</div>
+
+<p class="footer-note" id="updateTime">Loading live prices...</p>
+
+<p class="footer-note">
+  Data sourced from <a href="https://finance.yahoo.com" target="_blank">Yahoo Finance</a> (fundamentals) &amp; <a href="https://twelvedata.com" target="_blank">Twelve Data</a> (live prices).<br/>
+  Refresh this page to get the latest prices — no re-upload needed!<br/>
+  Contact: JLITZ100@GMAIL.COM <a href="https://gettingolder.org" target="_blank">Getting Older Travel Services</a>
+</p>
+
+<!-- COUNTERS -->
+<div style="margin-top:30px; text-align:center;">
+  <script type="text/javascript" src="https://www.counters-free.net/count/k5uy"></script><br>
+  <a href='https://www.acadoo.de/leistungen/ghostwriter-doktorarbeit/'>Doktorarbeit schreiben</a> <script type='text/javascript' src='https://www.whomania.com/ctr?id=9cad46ec2f71492ad5a8ba96726f47b3fb91acf7'></script>
+</div>
+
+</body>
+</html>
